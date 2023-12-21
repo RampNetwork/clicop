@@ -15,18 +15,22 @@ const clickupRequest = async ({ resource, method = 'POST', data = {} }) =>
       'Content-Type': 'application/json',
     },
     data,
-  }).catch(console.log);
-
-const getClickupTicketName = async (taskId, isCustom) => {
-  const resource = getTaskResource({ taskId, isCustom }, "")
-
-  const {
-    data: { name },
-  } = await clickupRequest({
-    resource,
-    method: 'GET',
+  }).catch(error => {
+    console.log(error);
+    // throw error;
   });
-  return name
+
+const getClickupTicketName = (taskId, isCustom) => {
+  const resource = getTaskResource({ taskId, isCustom }, "");
+
+  return clickupRequest({ resource, method: 'GET' })
+    .then(({ data: { name } }) => {
+      return name;
+    })
+    .catch(error => {
+      console.log(`Error fetching ClickUp ticket name for task ID ${taskId}`);
+      throw error;
+    });
 }
 
 const getTaskResource = ({ taskId, isCustom }, field = '') => {
@@ -104,6 +108,9 @@ const checkAndUpdateClickupIssues = () => {
         )
         .join('\n')
     );
+  }).catch(error => {
+    console.log(`Error fetching ClickUp ticket name for task ID ${taskId}:\n`, error);
+    fail(`:red_circle: Invalid task ID ${taskId}?`)
   });
 
   parallelRequests(tasks, async ({ taskId, isCustom }) => {
