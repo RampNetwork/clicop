@@ -44,7 +44,7 @@ const checkTasks = async () => {
   const allTasks = await parallelRequests(tasks, async ({ taskId }) => {
     return {
       taskId: taskId,
-      name: getJiraIssueName(taskId),
+      name: await getJiraIssueName(taskId),
     }
   });
 
