@@ -2,71 +2,6 @@ const axios = require('axios');
 
 const getTasks = require('./lib/get-tasks.js');
 
-const CLICKUP_API_URL = 'https://api.clickup.com/api/v2';
-const CLICKUP_TEAM_ID = '24301226';
-
-const clickupRequest = async ({ resource, method = 'POST', data = {} }) =>
-  axios({
-    method,
-    url: resource,
-    baseURL: CLICKUP_API_URL,
-    headers: {
-      Authorization: process.env.CLICKUP_TOKEN,
-      'Content-Type': 'application/json',
-    },
-    data,
-  }).catch(
-    function (error) {
-      console.log(`Error getting ${resource}`)
-    }
-  );
-
-const getClickupTicketName = async (taskId, isCustom) => {
-  const resource = getTaskResource({ taskId, isCustom }, "")
-
-  const response = await clickupRequest({
-    resource,
-    method: 'GET',
-  });
-  return response?.data?.name ?? undefined
-}
-
-const getTaskResource = ({ taskId, isCustom }, field = '') => {
-  const customQuery = isCustom ? `?custom_task_ids=true&team_id=${CLICKUP_TEAM_ID}` : '';
-  return `/task/${taskId}${field}${customQuery}`
-}
-
-const addClickupRefComment = async (taskId, isCustom) => {
-  const resource = getTaskResource({ taskId, isCustom }, '/comment')
-  const text = `This issue is referenced in ${danger.github.pr.html_url}`;
-
-  const {
-    data: { comments },
-  } = await clickupRequest({
-    resource,
-    method: 'GET',
-  });
-
-  const hasRefComment = comments.find(({ comment_text }) =>
-    comment_text.includes(text)
-  );
-
-  if (hasRefComment) {
-    return;
-  }
-
-  await clickupRequest({
-    resource,
-    data: {
-      comment: [
-        {
-          text,
-        },
-      ],
-    },
-  });
-};
-
 const parallelRequests = (tasks = [], req) => {
   if (tasks.length === 0) {
     return[];
@@ -75,14 +10,13 @@ const parallelRequests = (tasks = [], req) => {
   return Promise.all(tasks.map(req));
 };
 
-const checkAndUpdateClickupIssues = async () => {
+const checkAndUpdateIssues = async () => {
   const source = [danger.github.pr.title, danger.github.pr.body].join(' ');
   const tasks = getTasks(source);
   const allTasks = await parallelRequests(tasks, async ({ taskId, isCustom }) => {
     return {
       taskId: taskId,
       isCustom: isCustom,
-      name: await getClickupTicketName(taskId, isCustom)
     }
    });
 
@@ -108,10 +42,6 @@ const checkAndUpdateClickupIssues = async () => {
       )
       .join('\n')
   );
-
-  parallelRequests(tasksWithName, async ({ taskId, isCustom }) => {
-    addClickupRefComment(taskId, isCustom);
-  });
 };
 
-checkAndUpdateClickupIssues();
+checkAndUpdateIssues();

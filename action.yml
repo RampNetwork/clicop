@@ -5,9 +5,6 @@ inputs:
   github_token:
     description: "Github authentification token"
     required: true
-  clickup_token:
-    description: "Clickup authentification token"
-    required: true
 
 runs:
   using: composite
@@ -23,6 +20,5 @@ runs:
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
-        CLICKUP_TOKEN: ${{ inputs.clickup_token }}
         NODE_PATH: ${{ github.action_path }}
       run: npx danger -i CliCop --dangerfile ${{ github.action_path }}/dangerfile.js ci
