@@ -2,46 +2,71 @@ const axios = require('axios');
 
 const getTasks = require('./lib/get-tasks.js');
 
+const JIRA_BASE_URL = 'https://rampnetwork.atlassian.net';
+const JIRA_API_URL = `${JIRA_URL}/rest/api/2`;
+const JIRA_TOKEN_USER = 'michal.jasiorowski@ramp.network'
+
+const jiraRequest = async ({ resource, method = 'GET', data = {} }) =>
+  axios({
+    method,
+    url: resource,
+    baseURL: JIRA_API_URL,
+    headers: {
+      Authorization: `Basic ${Buffer.from(`${JIRA_TOKEN_USER}:${process.env.JIRA_TOKEN}`)}`,
+      'Content-Type': 'application/json',
+    },
+    data,
+  }).catch(error => {
+    console.error(`Error getting ${resource} - ${error}`)
+  });
+
+const getJiraIssueName = async (issueId) => {
+  const resource = `/issue/${issueId}?fields=summary`
+
+  const response = await jiraRequest({
+    resource,
+    method: 'GET',
+  });
+  return response?.data?.name ?? undefined
+}
+
 const parallelRequests = (tasks = [], req) => {
   if (tasks.length === 0) {
-    return[];
+    return [];
   }
 
   return Promise.all(tasks.map(req));
 };
 
-const checkAndUpdateIssues = async () => {
+const checkTasks = async () => {
   const source = [danger.github.pr.title, danger.github.pr.body].join(' ');
   const tasks = getTasks(source);
-  const allTasks = await parallelRequests(tasks, async ({ taskId, isCustom }) => {
+  const allTasks = await parallelRequests(tasks, async ({ taskId }) => {
     return {
       taskId: taskId,
-      isCustom: isCustom,
+      name: getJiraIssueName(taskId),
     }
-   });
+  });
 
   const tasksWithName = allTasks.filter(({ name }) => name);
   if (tasksWithName.length === 0) {
     fail(
-      '<b>Please add the ClickUp issue key to the PR e.g.: #28zfr1a or #DATAENG-98</b>\n' +
+      '<b>Please add the Jira issue key to the PR e.g.: #DATA-98</b>\n' +
       '(remember to add hash)\n\n' +
-      '<i>You can find ticket key eg. in the last part of URL when ticket is viewed in the browser eg.:\n' +
-      'URL: https://app.clickup.com/t/28zfr1a -> ticket issue key: 28zfr1a -> what should be added to PR: #28zfr1a\n' +
-      'URL: https://app.clickup.com/t/24301226/DATAENG-98 -> ticket issue key: DATAENG-98 -> what should be added to PR: #DATAENG-98\n\n' +
-      'You can add more than one ticket issue key in the PR title or/and description.</i>'
+      '<i>You can find issue key eg. in the last part of URL when issue is viewed in the browser eg.:\n' +
+      `URL: ${JIRA_BASE_URL}/browse/DATA-98 -> issue key: DATA-98 -> what should be added to PR: #DATA-98\n\n` +
+      'You can add more than one issue key in the PR title or/and description.</i>'
     );
     return;
   }
 
   message(
-    'ClickUp ticket(s) related to this PR:\n' +
-    tasksWithName
-      .map(
-        ({ taskId, name }) =>
-          `+ :link: <a href="https://app.clickup.com/t/${CLICKUP_TEAM_ID}/${taskId}">${name} [#${taskId}]</a>`
-      )
-      .join('\n')
+    'Jira issue(s) related to this PR:\n' +
+    tasksWithName.map(
+      ({ taskId, name }) =>
+        `+ :link: <a href="${JIRA_BASE_URL}/browse/${taskId}">${name} [#${taskId}]</a>`
+    ).join('\n')
   );
 };
 
-checkAndUpdateIssues();
+checkTasks();
