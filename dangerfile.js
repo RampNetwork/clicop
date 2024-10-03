@@ -11,9 +11,9 @@ const jiraRequest = async ({ resource, method = 'GET', data = {} }) =>
     method,
     url: resource,
     baseURL: JIRA_API_URL,
-    headers: {
-      Authorization: `Basic ${Buffer.from(`${JIRA_TOKEN_USER}:${process.env.JIRA_TOKEN}`)}`,
-      'Content-Type': 'application/json',
+    auth: {
+      username: JIRA_TOKEN_USER,
+      password: process.env.JIRA_TOKEN,
     },
     data,
   }).catch(error => {
@@ -27,7 +27,7 @@ const getJiraIssueName = async (issueId) => {
     resource,
     method: 'GET',
   });
-  return response?.data?.name ?? undefined
+  return response?.data?.fields?.summary ?? undefined
 }
 
 const parallelRequests = (tasks = [], req) => {
