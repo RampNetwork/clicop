@@ -3,7 +3,7 @@ const axios = require('axios');
 const getTasks = require('./lib/get-tasks.js');
 
 const JIRA_BASE_URL = 'https://rampnetwork.atlassian.net';
-const JIRA_API_URL = `${JIRA_URL}/rest/api/2`;
+const JIRA_API_URL = `${JIRA_BASE_URL}/rest/api/2`;
 const JIRA_TOKEN_USER = 'michal.jasiorowski@ramp.network'
 
 const jiraRequest = async ({ resource, method = 'GET', data = {} }) =>
