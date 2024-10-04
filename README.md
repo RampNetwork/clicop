@@ -1,10 +1,9 @@
-# CliCop
-![CliCop logo](clicop.png)
+# Kanar
+![Kanar logo](kanar.png)
 
 
-CliCop is an Github Actions action that enforces pinning ClickUp ticket id reference in a PR.\
+Kanar is an Github Actions action that enforces pinning ticket id reference in a PR.\
 I will fail if there is no task id in PR title or body.\
-It does not yet check if the task really exists in ClickUp.\
 It utilizes [DangerJS](https://danger.systems/js/) to perform the check.
 
 ## Inputs
@@ -20,7 +19,7 @@ npm test
 
 ## Example usage
 ```yaml
-name: CliCop
+name: Kanar
 
 on:
   pull_request:
@@ -36,10 +35,10 @@ permissions:
   statuses: write
 
 jobs:
-  clicop:
+  kanar:
     runs-on: ubuntu-latest
     steps:
-      - uses: RampNetwork/github-actions/clicop@clicop-v1.0.0
+      - uses: RampNetwork/kanar@v2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }} # this is passed automatically https://docs.github.com/en/actions/security-guides/automatic-token-authentication
           clickup_token: ${{ secrets.CLICKUP_TOKEN }}

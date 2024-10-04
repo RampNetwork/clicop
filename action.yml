@@ -1,5 +1,5 @@
-name: CliCop
-description: "Run DangerJS to check if the PR is has a valid Clickup ticket reference"
+name: Kanar
+description: "Run DangerJS to check if the PR is has a valid ticket reference"
 
 inputs:
   github_token:
@@ -25,4 +25,4 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         CLICKUP_TOKEN: ${{ inputs.clickup_token }}
         NODE_PATH: ${{ github.action_path }}
-      run: npx danger -i CliCop --dangerfile ${{ github.action_path }}/dangerfile.js ci
+      run: npx danger -i Kanar --dangerfile ${{ github.action_path }}/dangerfile.js ci
