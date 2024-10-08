@@ -39,7 +39,7 @@ const parallelRequests = (tasks = [], req) => {
 };
 
 const checkTasks = async () => {
-  const source = [danger.github.pr.title].join(' ');
+  const source = danger.github.pr.title;
   const tasks = getTasks(source);
   const allTasks = await parallelRequests(tasks, async ({ taskId }) => {
     return {
