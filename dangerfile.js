@@ -51,9 +51,7 @@ const checkTasks = async () => {
   const tasksWithName = allTasks.filter(({ name }) => name);
   if (tasksWithName.length === 0) {
     fail(
-      '<b>Please add the Jira issue key to the PR title e.g.: #DATA-98</b>\n' +
-
-      '(remember to add hash)\n\n' +
+      '<b>Please add the Jira issue key at the end of PR title e.g.: #DATA-98</b> (remember to add hash)\n\n' +
       '<i>You can find issue key eg. in the last part of URL when issue is viewed in the browser eg.:\n' +
       `URL: ${JIRA_BASE_URL}/browse/DATA-98 -> issue key: DATA-98 -> what should be added to the PR title: #DATA-98\n\n` +
       'You can add more than one issue key in the PR title.</i>'
