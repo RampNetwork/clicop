@@ -8,6 +8,9 @@ inputs:
   jira_token:
     description: "Jira authentification token"
     required: true
+  jira_token_user:
+    description: "User email of Jira user the jira_token belongs to"
+    required: true
 
 runs:
   using: composite
@@ -24,5 +27,6 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         JIRA_TOKEN: ${{ inputs.jira_token }}
+        JIRA_TOKEN_USER: ${{ inputs.jira_token_user }}
         NODE_PATH: ${{ github.action_path }}
       run: npx danger -i CliCop --dangerfile ${{ github.action_path }}/dangerfile.js ci
