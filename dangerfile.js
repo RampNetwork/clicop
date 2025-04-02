@@ -57,18 +57,22 @@ const checkTasks = async () => {
       
       You can add more than one issue key in the PR title.</i>`
     );
-    return;
-  }
-
-  message(
-    `Jira issue(s) related to this PR:
+  } else {
+    message(
+      `Jira issue(s) related to this PR:
     ${tasksWithName
       .map(
         ({ taskId, name }) =>
           `+ :link: <a href="${JIRA_BASE_URL}/browse/${taskId}">${name} [#${taskId}]</a>`
       )
       .join("\n")}`
-  );
+    );
+  }
+  return tasksWithName.length;
 };
 
-checkTasks();
+checkTasks().then((tasksCount) => {
+  if (tasksCount === 0) {
+    process.exit(1);
+  }
+});
